@@ -1,11 +1,11 @@
 import express from "express";
 import Task from "../models/Task.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import {  } from "../middleware/.js";
 
 const router = express.Router();
 
 // CREATE TASK (Protected)
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const task = new Task({
       ...req.body,
@@ -21,7 +21,7 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 // GET ALL TASKS (User specific)
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", , async (req, res) => {
   try {
     const tasks = await Task.find({ user: req.user.id });
     res.json(tasks);
@@ -31,7 +31,7 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // GET SINGLE TASK
-router.get("/:id", authMiddleware, async (req, res) => {
+router.get("/:id", , async (req, res) => {
   try {
     const task = await Task.findOne({
       _id: req.params.id,
@@ -47,7 +47,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 });
 
 // UPDATE TASK
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", , async (req, res) => {
   try {
     const updated = await Task.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
@@ -62,7 +62,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
 });
 
 // DELETE TASK
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", , async (req, res) => {
   try {
     await Task.findOneAndDelete({
       _id: req.params.id,
