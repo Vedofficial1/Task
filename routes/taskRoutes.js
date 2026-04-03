@@ -6,21 +6,18 @@ const router = express.Router();
 // CREATE TASK
 router.post("/", async (req, res) => {
   try {
-    // validate request body
-    await taskValidationSchema.validate(req.body, { abortEarly: false });
+    // Empty body check
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: "Body is required" });
+    }
 
+    // Create task directly from request body (manual id)
     const task = new Task(req.body);
     const savedTask = await task.save();
 
     res.status(201).json(savedTask);
 
   } catch (err) {
-    if (err.name === "ValidationError") {
-      return res.status(400).json({
-        errors: err.errors
-      });
-    }
-
     res.status(500).json({ error: err.message });
   }
 });
