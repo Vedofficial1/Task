@@ -15,7 +15,13 @@ const taskSchema = new mongoose.Schema({
     default: false
   },
   category: String,
-  estimated: String
+  estimated: String,
+
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }
+
 }, { timestamps: true });
 
 export default mongoose.model("Task", taskSchema);

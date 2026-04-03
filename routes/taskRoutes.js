@@ -1,32 +1,75 @@
 import express from "express";
 import Task from "../models/Task.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// CREATE TASK
-router.post("/", async (req, res) => {
+// CREATE TASK (Protected)
+router.post("/", authMiddleware, async (req, res) => {
   try {
-    // Empty body check
-    if (!req.body || Object.keys(req.body).length === 0) {
-      return res.status(400).json({ error: "Body is required" });
-    }
+    const task = new Task({
+      ...req.body,
+      user: req.user.id
+    });
 
-    // Create task directly from request body (manual id)
-    const task = new Task(req.body);
-    const savedTask = await task.save();
-
-    res.status(201).json(savedTask);
+    const saved = await task.save();
+    res.status(201).json(saved);
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET ALL TASKS
-router.get("/", async (req, res) => {
+// GET ALL TASKS (User specific)
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    const tasks = await Task.find();
+    const tasks = await Task.find({ user: req.user.id });
     res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET SINGLE TASK
+router.get("/:id", authMiddleware, async (req, res) => {
+  try {
+    const task = await Task.findOne({
+      _id: req.params.id,
+      user: req.user.id
+    });
+
+    if (!task) return res.status(404).json({ error: "Not found" });
+
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// UPDATE TASK
+router.put("/:id", authMiddleware, async (req, res) => {
+  try {
+    const updated = await Task.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      req.body,
+      { new: true }
+    );
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE TASK
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    await Task.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.id
+    });
+
+    res.json({ message: "Deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
