@@ -6,10 +6,21 @@ const router = express.Router();
 // CREATE TASK
 router.post("/", async (req, res) => {
   try {
+    // validate request body
+    await taskValidationSchema.validate(req.body, { abortEarly: false });
+
     const task = new Task(req.body);
     const savedTask = await task.save();
+
     res.status(201).json(savedTask);
+
   } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        errors: err.errors
+      });
+    }
+
     res.status(500).json({ error: err.message });
   }
 });
